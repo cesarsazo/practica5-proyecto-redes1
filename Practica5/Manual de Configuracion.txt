@@ -1,0 +1,111 @@
+################# TOPOLOGIA 1 ########################
+--------------------- R1 ----------------------------
+conf t
+int f0/1
+ip address 10.8.0.2 255.255.0.0
+full-duplex
+speed 100
+no shutdown
+
+configure terminal
+interface fastEthernet 0/0.20
+	encapsulation dot1Q 20
+	ip address 192.168.0.129 255.255.255.192
+	exit
+interface fastEthernet 0/0.50
+	encapsulation dot1Q 50
+	ip address 192.168.0.1 255.255.255.128
+	exit
+interface fastEthernet 0/0.70
+	encapsulation dot1Q 70
+	ip address 192.168.0.193 255.255.255.192
+	exit
+exit
+
+
+!
+configure terminal
+router eigrp 10
+	network 10.8.0.2 0.0.255.255
+	network 10.8.0.3 0.0.255.255
+	network 192.168.0.1 0.0.0.127
+	network 192.168.0.129 0.0.0.63
+	network 192.168.0.193 0.0.0.63
+	no auto-summary
+	exit
+exit
+!
+
+
+----------------------- ESW1 ------------------------
+
+conf t
+vtp domain practica5
+vtp password practica5
+vtp mode server
+end
+
+conf t
+vlan 20 name PROFESORES
+vlan 50 name ESTUDIANTES
+vlan 70 name INVITADOS
+end
+
+conf t
+int f1/0 - 2
+switchport mode trunk
+switchport trunk allowrd vlan 1,20,50,70,1002-1005
+end
+
+
+
+################# TOPOLOGIA 2 ########################
+
+========================EIGRP=========================
+------------------------R2----------------------------
+conf t
+router eigrp 10
+network 10.10.0.0 0.0.0.255
+network 20.10.0.0 0.0.0.255
+network 192.168.15.0 0.0.0.255
+end
+
+------------------------R3----------------------------
+conf t
+router eigrp 10
+network 10.10.0.0 0.0.0.255
+network 20.10.0.0 0.0.0.255
+network 192.168.15.0 0.0.0.255
+end
+
+------------------------R4----------------------------
+conf t
+router eigrp 10
+network 10.10.0.0 0.0.0.255
+network 20.10.0.0 0.0.0.255
+network 192.168.15.0 0.0.0.255
+end
+
+========================VRRP===========================
+
+------------------------R3----------------------------
+conf t
+vrrp 10
+vrrp 10 ip 192.168.15.3
+vrrp 10 priority 120
+vrrp 10 preempt
+end
+
+------------------------R4----------------------------
+conf t
+vrrp 10
+vrrp 10 ip 192.168.15.3
+vrrp 10 priority 100
+end
+
+========================INTERFACES===========================
+------------------------ESW2----------------------------
+conf t
+int range f1/0 - 3
+no shut
+end
