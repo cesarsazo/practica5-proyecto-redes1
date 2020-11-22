@@ -1,0 +1,40 @@
+--EtherSwitch1
+conf t
+vtp domain T1Grupo25
+vtp password T1Grupo25
+vtp mode server
+
+conf t
+vlan 35
+name RED1
+conf t
+vlan 45
+name RED2
+conf t
+vlan 55
+name RED3
+conf t
+vlan 65
+name RED4
+
+conf t
+int range f0/0 - 9
+switchport mode trunk
+
+conf t
+int range f1/2 - 5
+channel-group 1 mode on
+
+--EtherSwitch2
+conf t
+vtp domain T1Grupo25
+vtp password T1Grupo25
+vtp mode client
+
+conf t
+int range f0/0 - 9
+switchport mode trunk
+
+conf t
+int range f1/2 - 5
+channel-group 1 mode on
